@@ -1,0 +1,29 @@
+version: '2'
+services:
+  plex:
+    image: plexinc/pms-docker:latest
+    hostname: plex
+    labels:
+      io.rancher.cni.network: "ipsec"
+      io.rancher.cni.wait: "true"
+      io.rancher.container.ip: "10.42.2.59/16"
+      io.rancher.container.requested_ip: "10.42.2.59"
+    networks:
+      ipsec:
+        ipv4_address: 10.42.2.59
+    environment:
+     - PLEX_UID=1100 
+     - PLEX_GID=1100
+     - TZ=America/New_York
+     - ALLOWED_NETWORKS=10.240.8.0/24,10.240.9.0/24
+     - CHANGE_CONFIG_DIR_OWNERSHIP=true
+    volumes:
+     - /mnt/knas1/containers/Plex/config:/config
+     - /mnt/knas1/containers/Plex/transcode:/transcode
+     - /mnt/knas1/Movies:/movies 
+     - /mnt/knas1/TV:/tv
+     - /mnt/knas1/Pictures:/pictures
+     - /mnt/knas1/PersonalMovies:/personalmovies
+    dns:
+     - 10.240.9.2
+     - 216.52.126.1

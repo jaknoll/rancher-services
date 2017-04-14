@@ -1,0 +1,27 @@
+version: '2'
+services:
+  lsyncd:
+    image: jaknoll/lsyncd:latest 
+    hostname: lsyncd
+    labels:
+      io.rancher.cni.network: "ipsec"
+      io.rancher.cni.wait: "true"
+      io.rancher.container.ip: "10.42.2.20/16"
+      io.rancher.container.requested_ip: "10.42.2.20"
+    networks:
+      ipsec:
+        ipv4_address: 10.42.2.20
+    environment:
+     - SOURCES=/movies:/tv:/pictures:/personalmovies:/docs
+     - DESTINATIONS=/mnt/knas1/Movies:/mnt/knas1/TV:/mnt/knas1/Pictures:/mnt/knas1/PersonalMovies:/mnt/knas1/Documents
+     - HOST=root@10.240.8.51
+    volumes:
+     - /mnt/knas1/Movies:/movies 
+     - /mnt/knas1/TV:/tv
+     - /mnt/knas1/Pictures:/pictures
+     - /mnt/knas1/PersonalMovies:/personalmovies
+     - /mnt/knas1/Documents:/docs
+     - /home/rancher/.ssh:/root/.ssh
+    dns:
+     - 10.240.9.2
+     - 216.52.126.1
