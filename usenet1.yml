@@ -1,0 +1,69 @@
+version: '2'
+services:
+  sonarr:
+    image: linuxserver/sonarr 
+    hostname: sonarr
+    labels:
+      io.rancher.cni.network: "ipsec"
+      io.rancher.cni.wait: "true"
+      io.rancher.container.ip: "10.42.1.4/16"
+      io.rancher.container.requested_ip: "10.42.1.4"
+    networks:
+      ipsec:
+        ipv4_address: 10.42.1.4
+    environment:
+     - PUID=1100 
+     - PGID=1100
+     - TZ=America/New_York
+    volumes:
+     - /mnt/knas1/containers/Sonarr/config:/config
+     - /mnt/knas1/TV:/tv
+     - /mnt/knas1/containers/sabnzbd/complete:/downloads
+     - /dev/rtc:/dev/rtc:ro
+    dns:
+     - 10.240.9.2
+     - 216.52.126.1
+  sabnzbd:
+    image: linuxserver/sabnzbd
+    hostname: sabnzbd
+    labels:
+      io.rancher.cni.network: "ipsec"
+      io.rancher.cni.wait: "true"
+      io.rancher.container.ip: "10.42.1.3/16"
+      io.rancher.container.requested_ip: "10.42.1.3"
+    networks:
+      ipsec:
+        ipv4_address: 10.42.1.3
+    environment:
+     - PUID=1100
+     - PGID=1100
+     - TZ=America/New_York
+    volumes:
+     - /mnt/knas1/containers/sabnzbd/incomplete:/config/Downloads/incomplete
+     - /mnt/knas1/containers/sabnzbd/config:/config
+     - /mnt/knas1/containers/sabnzbd/complete:/config/Downloads/complete
+    dns:
+     - 10.240.9.2
+     - 216.52.126.1
+  radarr:
+    image: linuxserver/radarr
+    hostname: radarr
+    labels:
+      io.rancher.cni.network: "ipsec"
+      io.rancher.cni.wait: "true"
+      io.rancher.container.ip: "10.42.1.8/16"
+      io.rancher.container.requested_ip: "10.42.1.8"
+    networks:
+      ipsec:
+        ipv4_address: 10.42.1.8
+    environment:
+     - PUID=1100
+     - PGID=1100
+     - TZ=America/New_York
+    volumes:
+     - /mnt/knas1/containers/radarr/config:/config
+     - /mnt/knas1/Movies:/movies
+     - /mnt/knas1/containers/sabnzbd/complete:/downloads
+    dns:
+     - 10.240.9.2
+     - 216.52.126.1
