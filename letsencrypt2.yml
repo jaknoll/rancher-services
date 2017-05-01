@@ -15,7 +15,7 @@ services:
       CLOUDFLARE_KEY: ''
       DNSIMPLE_EMAIL: ''
       DNSIMPLE_KEY: ''
-      DOMAINS: knoll.duckdns.org,hass.knoll.duckdns.org,router.knoll.duckdns.org,pi.knoll.duckdns.org
+      DOMAINS: knoll.duckdns.org,hass.knoll.duckdns.org,router.knoll.duckdns.org,pi.knoll.duckdns.org,unifi.knoll.duckdns.org,impi1.knoll.duckdns.org,ipmi2.knoll.duckdns.org,bind.knoll.duckdns.org
       DO_ACCESS_TOKEN: ''
       DYN_CUSTOMER_NAME: ''
       DYN_PASSWORD: ''
