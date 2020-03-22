@@ -1,0 +1,67 @@
+version: '2'
+services:
+  ombi:
+    image: linuxserver/ombi
+    environment:
+      PGID: '1100'
+      PUID: '1100'
+      TZ: America/New_York
+    volumes:
+    - /nfs/knas1/containers/ombi/config:/config
+    ports:
+    - 3579:3579/tcp
+    labels:
+      traefik.http.routers.ombi.rule: Host(`ombi.knoll.duckdns.org`)
+      traefik.enable: 'true'
+      traefik.http.routers.ombi.tls: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.routers.ombi.middlewares: https@file,retries@file
+      io.rancher.container.pull_image: always
+      traefik.http.routers.ombi.tls.certresolver: letsencrypt
+      traefik.http.services.ombi.loadbalancer.server.port: '3579'
+  unifi:
+    image: linuxserver/unifi-controller:latest
+    hostname: unifi
+    environment:
+      PGID: '100'
+      PUID: '1024'
+    volumes:
+    - /nfs/knas1/containers/unifi/config:/config
+    - /nfs/knas1/containers/unifi/logs:/usr/lib/unifi/logs
+    dns:
+    - 10.240.9.2
+    - 216.52.126.1
+    ports:
+    - 8082:8080/tcp
+    - 8443:8443/tcp
+    - 8880:8880/tcp
+    - 8843:8843/tcp
+    - 8081:8081/tcp
+    - 3478:3478/udp
+    - 10001:10001/tcp
+    labels:
+      traefik.http.routers.unifi.middlewares: https@file,retries@file,whitelist@file
+      traefik.http.routers.unifi.rule: Host(`unifi.knoll.duckdns.org`)
+      traefik.enable: 'true'
+      io.rancher.cni.network: ipsec
+      traefik.http.services.unifi.loadbalancer.server.scheme: https
+      traefik.http.routers.unifi.tls: 'true'
+      io.rancher.cni.wait: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.services.unifi.loadbalancer.server.port: '8443'
+      io.rancher.container.pull_image: always
+      traefik.http.routers.unifi.tls.certresolver: letsencrypt
+  dns:
+    image: coredns/coredns
+    stdin_open: true
+    volumes:
+    - /nfs/knas1/containers/coredns:/root
+    tty: true
+    ports:
+    - 53:53/udp
+    - 53:53/tcp
+    command:
+    - -conf
+    - /root/Corefile
+    labels:
+      io.rancher.container.pull_image: always
