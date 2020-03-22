@@ -1,0 +1,82 @@
+version: '2'
+services:
+  radarr:
+    image: linuxserver/radarr:nightly
+    hostname: radarr
+    environment:
+      PGID: '1100'
+      PUID: '1100'
+      TZ: America/New_York
+    volumes:
+    - /nfs/knas1/containers/radarr/config:/config
+    - /nfs/knas1/Movies:/movies
+    - /nfs/knas1/containers/sabnzbd/complete:/downloads
+    dns:
+    - 10.240.9.2
+    - 216.52.126.1
+    ports:
+    - 7878:7878/tcp
+    labels:
+      traefik.http.routers.radarr.tls: 'true'
+      traefik.enable: 'true'
+      io.rancher.cni.network: ipsec
+      traefik.http.routers.radarr.tls.certresolver: letsencrypt
+      io.rancher.cni.wait: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.routers.radarr.rule: Host(`radarr.knoll.duckdns.org`)
+      traefik.http.services.radarr.loadbalancer.server.port: '7878'
+      traefik.http.routers.radarr.middlewares: https@file,retries@file,whitelist@file
+  sonarr:
+    image: linuxserver/sonarr
+    hostname: sonarr
+    environment:
+      PGID: '1100'
+      PUID: '1100'
+      TZ: America/New_York
+    volumes:
+    - /nfs/knas1/containers/Sonarr/config:/config
+    - /nfs/knas1/TV:/tv
+    - /nfs/knas1/containers/sabnzbd/complete:/downloads
+    - /dev/rtc:/dev/rtc:ro
+    dns:
+    - 10.240.9.2
+    - 216.52.126.1
+    domainname: knolltest.com
+    ports:
+    - 8989:8989/tcp
+    labels:
+      traefik.http.routers.sonarr.tls: 'true'
+      traefik.http.routers.sonarr.rule: Host(`sonarr.knoll.duckdns.org`)
+      traefik.enable: 'true'
+      traefik.http.services.sonarr.loadBalancer.server.port: '8989'
+      io.rancher.cni.network: ipsec
+      io.rancher.cni.wait: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.routers.sonarr.tls.certresolver: letsencrypt
+      traefik.http.routers.sonarr.middlewares: https@file,retries@file,whitelist@file
+  sabnzbd:
+    image: linuxserver/sabnzbd
+    hostname: sabnzbd
+    environment:
+      PGID: '1100'
+      PUID: '1100'
+      TZ: America/New_York
+    volumes:
+    - /nfs/knas1/containers/sabnzbd/incomplete:/config/Downloads/incomplete
+    - /nfs/knas1/containers/sabnzbd/config:/config
+    - /nfs/knas1/containers/sabnzbd/complete:/config/Downloads/complete
+    dns:
+    - 10.240.9.2
+    - 216.52.126.1
+    ports:
+    - 8085:8080/tcp
+    labels:
+      traefik.http.routers.sabnzbd.tls: 'true'
+      traefik.enable: 'true'
+      io.rancher.cni.network: ipsec
+      io.rancher.cni.wait: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.knoll.duckdns.org`)
+      traefik.http.routers.sabnzbd.middlewares: https@file,retries@file,whitelist@file
+      traefik.http.services.sabnzbd.loadbalancer.server.port: '8080'
+      traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
