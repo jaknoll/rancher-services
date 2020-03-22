@@ -1,0 +1,42 @@
+version: '2'
+services:
+  plex:
+    privileged: true
+    cap_add:
+    - CHOWN
+    - FOWNER
+    - SETGID
+    - SETUID
+    image: plexinc/pms-docker:plexpass
+    hostname: plex
+    environment:
+      ALLOWED_NETWORKS: 10.240.8.0/24,10.240.9.0/24
+      CHANGE_CONFIG_DIR_OWNERSHIP: 'true'
+      PLEX_GID: '1100'
+      PLEX_UID: '1100'
+      TZ: America/New_York
+    devices:
+    - /dev/dri:/dev/dri:rwm
+    volumes:
+    - /local/containers/plex/config:/config
+    - /nfs/knas1/Movies:/movies
+    - /nfs/knas1/TV:/tv
+    - /nfs/knas1/Pictures:/pictures
+    - /nfs/knas1/PersonalMovies:/personalmovies
+    - /tmp:/tmp
+    dns:
+    - 10.240.9.2
+    - 216.52.126.1
+    ports:
+    - 32400:32400/tcp
+    labels:
+      traefik.enable: 'true'
+      io.rancher.cni.network: ipsec
+      traefik.http.routers.plex.tls.certresolver: letsencrypt
+      io.rancher.cni.wait: 'true'
+      io.rancher.scheduler.affinity:host_label: node.type=compute
+      traefik.http.routers.plex.rule: Host(`plex.knoll.duckdns.org`)
+      traefik.http.routers.plex.tls: 'true'
+      traefik.http.routers.plex.middlewares: https@file,retries@file,whitelist@file
+      traefik.http.services.plex.loadbalancer.server.port: '32400'
+      io.rancher.container.pull_image: always
